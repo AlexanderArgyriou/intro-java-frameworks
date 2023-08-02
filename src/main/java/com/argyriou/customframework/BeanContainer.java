@@ -3,6 +3,7 @@
 package com.argyriou.customframework;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BeanContainer {
@@ -14,7 +15,8 @@ public class BeanContainer {
 
     public Object getBean(Class<?> clazz) {
         return beans.stream()
-                .filter(bean -> clazz.equals(bean.getClass()))
+                .filter(bean -> clazz.equals(bean.getClass()) ||
+                        Arrays.asList(bean.getClass().getInterfaces()).contains(clazz))
                 .findFirst()
                 .orElseThrow(RuntimeException::new);
     }

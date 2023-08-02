@@ -1,6 +1,8 @@
 // appframe
 // createbc
 // createbl
+// secondbean
+// performdi
 
 package com.argyriou.customframework;
 
@@ -12,9 +14,15 @@ public class App {
         BeanLoader beanLoader = new BeanLoader(beanContainer);
         beanLoader.loadBeans("./target/classes");
 
+        Injector injector = new Injector(beanContainer);
+        injector.performDI();
+
         beanContainer.getAllBeans().forEach(bean -> {
             if (bean instanceof MyBean) {
                 ((MyBean) bean).identifyYourSelf();
+            }
+            if (bean instanceof ASecondBean) {
+                ((ASecondBean) bean).testDependencies();
             }
         });
     }
