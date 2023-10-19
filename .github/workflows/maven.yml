@@ -41,7 +41,8 @@ jobs:
       run: |
         jf c add acme-artifactory \
          --url ${{ secrets.JF_URL }} \
-         --access-token ${{ secrets.JF_ACCESS_TOKEN }}
+         --user ${{ secrets.JF_USER }} \
+         --password ${{ secrets.JF_PASSWORD }}
       
         jf rt u "target/*.jar" "acme-artifactory/libs-release/$REPO_PATH"
       env:
