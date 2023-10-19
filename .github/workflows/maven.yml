@@ -1,5 +1,8 @@
 name: Java CI with Maven and JFrog Artifactory
 
+env:
+  ARTIFACT_PATH: ""
+
 on:
   workflow_dispatch:
 
@@ -7,9 +10,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
-    env:
-      ARTIFACT_PATH: ""
 
     steps:
     - name: Checkout code
@@ -43,7 +43,6 @@ jobs:
 #         --user ${{ secrets.JF_USER }} \
 #         --password ${{ secrets.JF_PASSWORD }}
 
-      
         jf rt u "target/*.jar" "libs-release-local/$ARTIFACT_PATH"
       env:
         JF_URL: ${{ secrets.JF_URL }}
