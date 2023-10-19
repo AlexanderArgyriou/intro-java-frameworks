@@ -39,13 +39,13 @@ jobs:
     - uses: jfrog/setup-jfrog-cli@v3
     - name: Publish to JFrog Artifactory
       run: |
-        jf rt c acme-artifactory \
+        jf c add acme-artifactory \
          --url ${{ secrets.JF_URL }} \
          --user ${{ secrets.JF_USER }} \
          --password ${{ secrets.JF_PASSWORD }} \
          --access-token ${{ secrets.JF_ACCESS_TOKEN }}
-        
-        jf rt mvn-publish target/*.jar acme-artifactory/lib-release/$REPO_PATH
+      
+        jf rt u "target/*.jar" "acme-artifactory/libs-release/$REPO_PATH"
       env:
         JF_URL: ${{ secrets.JF_URL }}
         JF_USER: ${{ secrets.JF_USER }}
