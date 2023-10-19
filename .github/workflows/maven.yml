@@ -22,8 +22,8 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Install xmlstarlet
-      run: sudo apt-get -y install xmlstarlet
+    - name: Install xmllint
+      run: sudo apt-get -y install xmllint
 
     - name: Extract GAV coordinates from POM using xmllint
       run: |
