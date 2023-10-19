@@ -23,7 +23,7 @@ jobs:
       run: mvn -B package --file pom.xml
 
     - name: Install xmllint
-      run: sudo apt-get -y install xmllint
+      run: sudo apt-get -y install libxml2-utils
 
     - name: Extract GAV coordinates from POM using xmllint
       run: |
