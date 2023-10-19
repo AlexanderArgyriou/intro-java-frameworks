@@ -27,11 +27,11 @@ jobs:
 
     - name: Extract GAV coordinates from POM
       run: |
-       GROUP_ID=$(grep -oP '<groupId>\K[^<]+' pom.xml)
-       ARTIFACT_ID=$(grep -oP '<artifactId>\K[^<]+' pom.xml)
-       VERSION=$(grep -oP '<version>\K[^<]+' pom.xml)
-       REPO_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
-       echo "Repository Path: $REPO_PATH"
+        GROUP_ID=$(grep -m 1 -oP '<groupId>\K[^<]+' pom.xml)
+        ARTIFACT_ID=$(grep -m 1 -oP '<artifactId>\K[^<]+' pom.xml)
+        VERSION=$(grep -m 1 -oP '<version>\K[^<]+' pom.xml)
+        REPO_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
+        echo "Repository Path: $REPO_PATH"
       working-directory: ${{ github.workspace }}
       env:
         XMLSTARLET_SKIP: "1"
@@ -39,11 +39,11 @@ jobs:
     - uses: jfrog/setup-jfrog-cli@v3
     - name: Publish to JFrog Artifactory
       run: |
-        jfrog rt config acme-artifactory \
-          --url ${{ secrets.JF_URL }} \
-          --user ${{ secrets.JF_USER }} \
-          --password ${{ secrets.JF_PASSWORD }} \
-          --access-token ${{ secrets.JF_ACCESS_TOKEN }}
+        jfrog rt c acme-artifactory \
+         --url ${{ secrets.JF_URL }} \
+         --user ${{ secrets.JF_USER }} \
+         --password ${{ secrets.JF_PASSWORD }} \
+         --access-token ${{ secrets.JF_ACCESS_TOKEN }}
         
         jfrog rt mvn-publish target/*.jar acme-artifactory/lib-release/$REPO_PATH
       env:
