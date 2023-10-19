@@ -44,7 +44,7 @@ jobs:
          --user ${{ secrets.JF_USER }} \
          --password ${{ secrets.JF_PASSWORD }}
       
-        jf rt u "target/*.jar" "acme-artifactory/libs-release/$REPO_PATH"
+        jf rt u "target/*.jar" "acme-artifactory/libs-release-local/$REPO_PATH"
       env:
         JF_URL: ${{ secrets.JF_URL }}
         JF_USER: ${{ secrets.JF_USER }}
