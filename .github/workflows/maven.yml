@@ -32,7 +32,6 @@ jobs:
         VERSION=$(grep -m 1 -oP '<version>\K[^<]+' pom.xml)
         ARTIFACT_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
         echo "Repository Path: $ARTIFACT_PATH"
-      working-directory: ${{ github.workspace }}
 
     - uses: jfrog/setup-jfrog-cli@v3
     - name: Publish to JFrog Artifactory
