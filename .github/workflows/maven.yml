@@ -22,17 +22,17 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Install xmllint
-      run: sudo apt-get -y install libxml2-utils
+    - name: Install xmlstarlet
+      run: sudo apt-get -y install xmlstarlet
 
-    - name: Extract GAV coordinates from POM using xmllint
+    - name: Extract GAV coordinates from POM using xmlstarlet
       run: |
-        group_id=$(xmllint --xpath "string(/project/groupId)" pom.xml)
-        artifact_id=$(xmllint --xpath "string(/project/artifactId)" pom.xml)
-        version=$(xmllint --xpath "string(/project/version)" pom.xml)
+        echo ${{ github.workspace }}
+        group_id=$(xmlstarlet sel -t -v "//project/groupId" ./pom.xml)
+        artifact_id=$(xmlstarlet sel -t -v "//project/artifactId" ./pom.xml)
+        version=$(xmlstarlet sel -t -v "//project/version" ./pom.xml)
         repo_path="${group_id//.//}/$artifact_id/$version"
-        export ARTIFACT_PATH="${group_id//.//}/$artifact_id/$version"
-        echo "Repository Path: $ARTIFACT_PATH"
+        echo "Repository Path: $repo_path"
       working-directory: ${{ github.workspace }}
 
     - uses: jfrog/setup-jfrog-cli@v3
