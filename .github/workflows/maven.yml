@@ -43,7 +43,8 @@ jobs:
          --url ${{ secrets.JF_URL }} \
          --user ${{ secrets.JF_USER }} \
          --password ${{ secrets.JF_PASSWORD }}
-      
+    
+        echo "${{ steps.extract-gav.outputs.ARTIFACT_PATH}}"
         jf rt u "*.jar" "libs-release-local/${{ steps.extract-gav.outputs.ARTIFACT_PATH}}"
       env:
         JF_URL: ${{ secrets.JF_URL }}
