@@ -27,11 +27,11 @@ jobs:
 
     - name: Extract GAV coordinates from POM
       run: |
-        GROUP_ID=$(xmlstarlet sel -t -v "//project/groupId" pom.xml)
-        ARTIFACT_ID=$(xmlstarlet sel -t -v "//project/artifactId" pom.xml)
-        VERSION=$(xmlstarlet sel -t -v "//project/version" pom.xml)
-        REPO_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
-        echo "Repository Path: $REPO_PATH"
+       GROUP_ID=$(grep -oP '<groupId>\K[^<]+' pom.xml)
+       ARTIFACT_ID=$(grep -oP '<artifactId>\K[^<]+' pom.xml)
+       VERSION=$(grep -oP '<version>\K[^<]+' pom.xml)
+       REPO_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
+       echo "Repository Path: $REPO_PATH"
       working-directory: ${{ github.workspace }}
       env:
         XMLSTARLET_SKIP: "1"
