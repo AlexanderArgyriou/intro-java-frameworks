@@ -34,8 +34,8 @@ jobs:
         echo "Repository Path: $ARTIFACT_PATH"
       working-directory: ${{ github.workspace }}
 
-    - uses: jfrog/setup-jfrog-cli@v3
     - name: Publish to JFrog Artifactory
+      uses: jfrog/setup-jfrog-cli@v3
       run: |
         jf c add acme-artifactory \
          --url ${{ secrets.JF_URL }} \
