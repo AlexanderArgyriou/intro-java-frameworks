@@ -8,6 +8,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      ARTIFACT_PATH: ""
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -22,29 +25,26 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - name: Install xmlstarlet
-      run: sudo apt-get -y install xmlstarlet
-
     - name: Extract GAV coordinates from POM
       run: |
         GROUP_ID=$(grep -m 1 -oP '<groupId>\K[^<]+' pom.xml)
         ARTIFACT_ID=$(grep -m 1 -oP '<artifactId>\K[^<]+' pom.xml)
         VERSION=$(grep -m 1 -oP '<version>\K[^<]+' pom.xml)
-        REPO_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
-        echo "Repository Path: $REPO_PATH"
+        ARTIFACT_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
+        echo "Repository Path: $ARTIFACT_PATH"
       working-directory: ${{ github.workspace }}
-      env:
-        XMLSTARLET_SKIP: "1"
 
     - uses: jfrog/setup-jfrog-cli@v3
     - name: Publish to JFrog Artifactory
       run: |
         jf c add acme-artifactory \
          --url ${{ secrets.JF_URL }} \
-         --user ${{ secrets.JF_USER }} \
-         --password ${{ secrets.JF_PASSWORD }}
+         --access-token ${{ secrets.JF_ACCESS_TOKEN }}
+#         --user ${{ secrets.JF_USER }} \
+#         --password ${{ secrets.JF_PASSWORD }}
+
       
-        jf rt u "target/*.jar" "libs-release-local/$REPO_PATH"
+        jf rt u "target/*.jar" "libs-release-local/$ARTIFACT_PATH"
       env:
         JF_URL: ${{ secrets.JF_URL }}
         JF_USER: ${{ secrets.JF_USER }}
