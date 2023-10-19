@@ -30,9 +30,9 @@ jobs:
         group_id=$(xmlstarlet sel -N ns=http://maven.apache.org/POM/4.0.0 -t -v "//ns:project/ns:groupId" pom.xml)
         artifact_id=$(xmlstarlet sel -N ns=http://maven.apache.org/POM/4.0.0 -t -v "//ns:project/ns:artifactId" pom.xml)
         version=$(xmlstarlet sel -N ns=http://maven.apache.org/POM/4.0.0 -t -v "//ns:project/ns:version" pom.xml)
-        export ARTIFACT_PATH="${group_id//.//}/$artifact_id/$version"
+        ARTIFACT_PATH="${group_id//.//}/$artifact_id/$version"
         echo "Repository Path: $ARTIFACT_PATH"
-        echo "::set-env name=ARTIFACT_PATH::$ARTIFACT_PATH"  # Set an environment variable for subsequent steps
+        echo "::set-output name=ARTIFACT_PATH::$ARTIFACT_PATH"  # Set an output for subsequent steps
       working-directory: ${{ github.workspace }}
 
 
@@ -44,7 +44,7 @@ jobs:
          --user ${{ secrets.JF_USER }} \
          --password ${{ secrets.JF_PASSWORD }}
       
-        jf rt u "target/*.jar" "libs-release-local/$ARTIFACT_PATH"
+        jf rt u "target/*.jar" "libs-release-local/${{ steps.extract-gav.outputs.ARTIFACT_PATH}}"
       env:
         JF_URL: ${{ secrets.JF_URL }}
         JF_USER: ${{ secrets.JF_USER }}
