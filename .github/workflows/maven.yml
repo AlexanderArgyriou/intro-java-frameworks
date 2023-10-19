@@ -1,47 +1,47 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Java CI with Maven
-
-env:
-  # JFrog platform url (for example: https://acme.jfrog.io) 
-  JF_URL: ${{ secrets.JF_URL }}
-    
-  # Basic authentication credentials
-  JF_USER: ${{ secrets.JF_USER }}
-  JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
-  # JFrog Platform access token
-  JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
-  
-# on:
-#   push:
-#     branches: [ "master" ]
-#   pull_request:
-#     branches: [ "master" ]
+name: Java CI with Maven and JFrog Artifactory
 
 on:
   workflow_dispatch:
-  
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Set up JDK 11
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v2
       with:
         java-version: '11'
-        distribution: 'temurin'
-        cache: maven
+
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
-    - uses: jfrog/setup-jfrog-cli@v3
-    - run: jf rt ping
+    - name: Extract GAV coordinates from POM
+      run: |
+        GROUP_ID=$(xmlstarlet sel -t -v "//project/groupId" pom.xml)
+        ARTIFACT_ID=$(xmlstarlet sel -t -v "//project/artifactId" pom.xml)
+        VERSION=$(xmlstarlet sel -t -v "//project/version" pom.xml)
+        REPO_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
+        echo "Repository Path: $REPO_PATH"
+      working-directory: ${{ github.workspace }}
+      env:
+        XMLSTARLET_SKIP: "1"
+
+    - name: Publish to JFrog Artifactory
+      run: |
+        jfrog rt config acme-artifactory \
+          --url ${{ secrets.JF_URL }} \
+          --user ${{ secrets.JF_USER }} \
+          --password ${{ secrets.JF_PASSWORD }} \
+          --access-token ${{ secrets.JF_ACCESS_TOKEN }}
+        
+        jfrog rt mvn-publish target/*.jar acme-artifactory/lib-release/$REPO_PATH
+      env:
+        JF_URL: ${{ secrets.JF_URL }}
+        JF_USER: ${{ secrets.JF_USER }}
+        JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+        JF_ACCESS_TOKEN: ${{ secrets.JF_ACCESS_TOKEN }}
