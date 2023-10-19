@@ -25,27 +25,22 @@ jobs:
     - name: Install xmlstarlet
       run: sudo apt-get -y install xmlstarlet
 
-    - name: Extract GAV coordinates from POM using xmlstarlet
+    - uses: jfrog/setup-jfrog-cli@v3
+    - name: Publish to JFrog Artifactory
       run: |
         group_id=$(xmlstarlet sel -N ns=http://maven.apache.org/POM/4.0.0 -t -v "//ns:project/ns:groupId" pom.xml)
         artifact_id=$(xmlstarlet sel -N ns=http://maven.apache.org/POM/4.0.0 -t -v "//ns:project/ns:artifactId" pom.xml)
         version=$(xmlstarlet sel -N ns=http://maven.apache.org/POM/4.0.0 -t -v "//ns:project/ns:version" pom.xml)
         ARTIFACT_PATH="${group_id//.//}/$artifact_id/$version"
         echo "Repository Path: $ARTIFACT_PATH"
-        echo "::set-output name=ARTIFACT_PATH::$ARTIFACT_PATH"  # Set an output for subsequent steps
-      working-directory: ${{ github.workspace }}
-
-
-    - uses: jfrog/setup-jfrog-cli@v3
-    - name: Publish to JFrog Artifactory
-      run: |
+        
         jf c add acme-artifactory \
          --url ${{ secrets.JF_URL }} \
          --user ${{ secrets.JF_USER }} \
          --password ${{ secrets.JF_PASSWORD }}
     
-        echo "${{ steps.extract-gav.outputs.ARTIFACT_PATH}}"
         jf rt u "*.jar" "libs-release-local/${{ steps.extract-gav.outputs.ARTIFACT_PATH}}"
+      working-directory: ${{ github.workspace }}
       env:
         JF_URL: ${{ secrets.JF_URL }}
         JF_USER: ${{ secrets.JF_USER }}
