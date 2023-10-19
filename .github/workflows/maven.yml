@@ -25,16 +25,15 @@ jobs:
     - name: Install xmlstarlet
       run: sudo apt-get -y install xmlstarlet
 
-    - name: Extract GAV coordinates from POM
+    - name: Extract GAV coordinates from POM using xmllint
       run: |
-        GROUP_ID=$(grep -m 1 -oP '<groupId>\K[^<]+' pom.xml)
-        ARTIFACT_ID=$(grep -m 1 -oP '<artifactId>\K[^<]+' pom.xml)
-        VERSION=$(grep -m 1 -oP '<version>\K[^<]+' pom.xml)
-        REPO_PATH="${GROUP_ID//.//}/$ARTIFACT_ID/$VERSION/"
-        echo "Repository Path: $REPO_PATH"
+        group_id=$(xmllint --xpath "string(/project/groupId)" pom.xml)
+        artifact_id=$(xmllint --xpath "string(/project/artifactId)" pom.xml)
+        version=$(xmllint --xpath "string(/project/version)" pom.xml)
+        repo_path="${group_id//.//}/$artifact_id/$version"
+        export ARTIFACT_PATH="${group_id//.//}/$artifact_id/$version"
+        echo "Repository Path: $ARTIFACT_PATH"
       working-directory: ${{ github.workspace }}
-      env:
-        XMLSTARLET_SKIP: "1"
 
     - uses: jfrog/setup-jfrog-cli@v3
     - name: Publish to JFrog Artifactory
@@ -44,7 +43,7 @@ jobs:
          --user ${{ secrets.JF_USER }} \
          --password ${{ secrets.JF_PASSWORD }}
       
-        jf rt u "target/*.jar" "libs-release-local/$REPO_PATH"
+        jf rt u "target/*.jar" "libs-release-local/$ARTIFACT_PATH"
       env:
         JF_URL: ${{ secrets.JF_URL }}
         JF_USER: ${{ secrets.JF_USER }}
